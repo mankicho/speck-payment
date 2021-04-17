@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <typeAliases>
+        <typeAlias type="data.order.dto.OrderDto" alias="orderDto"/>
+        <typeAlias type="data.PaymentInfo" alias="paymentInfo"/>
+        <typeAlias type="data.payment.dto.PlanDTO" alias="PlanDTO"/>
+    </typeAliases>
+
+    <mappers>
+        <mapper class="mapper.PaymentMapper"/>
+        <mapper class="mapper.SchoolMapper"/>
+    </mappers>
+</configuration>
