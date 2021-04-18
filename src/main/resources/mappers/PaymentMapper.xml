@@ -14,6 +14,14 @@
         <result property="planLogId" column="plan_log_id"/>
     </resultMap>
 
+    <resultMap id="refundVO" type="data.payment.vo.RefundVO">
+        <result property="paymentId" column="payment_id"/>
+        <result property="impUID" column="imp_uid"/>
+        <result property="midUID" column="merchant_uid"/>
+        <result property="amount" column="amount"/>
+        <result property="isBefore" column="is_before"/>
+    </resultMap>
+
     <select id="getCustomerUID" parameterType="string" resultMap="memberCustomerId">
         select * from members_customer_id where member_email = #{email}
     </select>
@@ -34,9 +42,16 @@
         INSERT INTO payment values (null,#{impUID},#{merchantUID},#{customerUID},#{tid},#{amount},now())
     </insert>
 
-    <select id="getPaymentInfo" parameterType="string" resultType="paymentInfo">
-        select imp_uid,merchant_uid,customer_uid from payment where merchant_uid = #{mid}
+    <select id="getPaymentInfo" parameterType="string" resultMap="refundVO">
+        SELECT payment_id,imp_uid,merchant_uid,amount,if(date_format(now(),'%Y-%m-%d') <![CDATA[<]]> start_date,true,false) AS is_before
+        FROM payment AS p LEFT OUTER JOIN class_members AS m
+        ON p.tid = m.tid WHERE imp_uid = #{impUID} AND merchant_uid = #{midUID}
     </select>
+    
+    <delete id="deletePayment" parameterType="string">
+        DELETE FROM payment WHERE
+        imp_uid = #{impUID} and merchant_uid = #{midUID}
+    </delete>
 </mapper>
 
 

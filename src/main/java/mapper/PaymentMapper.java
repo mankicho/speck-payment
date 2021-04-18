@@ -3,6 +3,8 @@ package mapper;
 import data.MemberCustomerId;
 import data.order.dto.OrderDto;
 import data.PaymentInfo;
+import data.payment.dto.RefundDTO;
+import data.payment.vo.RefundVO;
 import org.apache.ibatis.annotations.Param;
 
 public interface PaymentMapper {
@@ -16,5 +18,7 @@ public interface PaymentMapper {
 
     int savePayment(PaymentInfo paymentInfo);
 
-    PaymentInfo getPaymentInfo(@Param("mid") String mid);
+    RefundVO getPaymentInfo(RefundDTO refundDTO);
+
+    int deletePayment(RefundDTO refundDTO);
 }

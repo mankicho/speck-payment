@@ -3,14 +3,14 @@ package service;
 import data.PaymentInfo;
 import data.payment.dto.PaymentRequestDTO;
 import data.payment.PaymentMessage;
-import data.payment.dto.PlanDTO;
+import data.payment.dto.RefundDTO;
+import data.payment.response.RefundResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import mapper.PaymentMapper;
 import mapper.SchoolMapper;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Log4j2
@@ -19,11 +19,12 @@ public class PaymentService {
 
     private final PaymentMapper paymentMapper;
     private final SchoolMapper schoolMapper;
-    private final PaymentRequestService paymentRequestService;
+    private final PaymentServiceWithIAmPortServer paymentServiceWithIAmPortServer;
 
+    // 결제하기
     public PaymentMessage doPayment(PaymentRequestDTO paymentRequestDTO) {
         // todo 1. access_token 가져오기 ==> 실패 시 서버오류 메세지 리턴
-        JSONObject authToken = paymentRequestService.getAuthToken().getJSONObject("response"); // 인증토큰 요청
+        JSONObject authToken = paymentServiceWithIAmPortServer.getAuthToken().getJSONObject("response"); // 인증토큰 요청
 
         if (authToken == null) {
             // 인증토큰을 가져오지못하면
@@ -36,7 +37,7 @@ public class PaymentService {
         log.info(authToken);
         log.info(paymentRequestDTO);
 
-        JSONObject paymentResultObject = paymentRequestService.
+        JSONObject paymentResultObject = paymentServiceWithIAmPortServer.
                 doPaymentWithCustomerUID(paymentRequestDTO, authToken.getString("access_token")); // 결제요청
 
         if (paymentResultObject == null) {
@@ -68,7 +69,7 @@ public class PaymentService {
                         .build();
                 int savedRow = paymentMapper.savePayment(paymentInfo);
 
-                if(savedRow == 0){
+                if (savedRow == 0) {
                     // todo. 실패기록을 로그파일로 남기자.
                 }
 
@@ -99,7 +100,7 @@ public class PaymentService {
 
     }
 
-    public void refund() {
-
+    public RefundResponse refund(RefundDTO refundDTO) {
+        return paymentServiceWithIAmPortServer.refund(refundDTO);
     }
 }
