@@ -5,7 +5,6 @@
 
     <insert id="insertPlan" parameterType="PlanDTO" useGeneratedKeys="true" keyProperty="tid">
         insert into class_members values (null,#{schoolId},#{classId},#{setDay},#{memberEmail},#{startDate},#{endDate},#{cnt},#{setPaymentAmount})
-
     </insert>
 </mapper>
 
