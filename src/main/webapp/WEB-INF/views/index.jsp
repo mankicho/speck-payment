@@ -11,6 +11,6 @@
     <title>$Title$</title>
   </head>
   <body>
-  $END$
+  SPECK 결제 서버..
   </body>
 </html>
