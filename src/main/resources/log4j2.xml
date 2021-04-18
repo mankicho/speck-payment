@@ -21,7 +21,7 @@
     <Loggers>
 
         <!-- 기본 레벨은 debug -->
-        <Root level="debug" additivity="false" >
+        <Root level="info" additivity="false" >
             <AppenderRef ref="console" />
             <AppenderRef ref="file" />
         </Root>
