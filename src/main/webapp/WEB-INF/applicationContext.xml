@@ -15,14 +15,14 @@
     <!-- @Transactional 애노테이션을 scan 하기 위한 설정 -->
     <tx:annotation-driven/>
 
-    <util:properties id="db"
-                     location="file:C:\Users\82102\Desktop\apache-tomcat-8.5.57-windows-x64\apache-tomcat-8.5.57/db.properties"/>
 <!--    <util:properties id="db"-->
-<!--                     location="file:/home/tomcat/apache-tomcat-8.5.64/db.properties"/>-->
-    <util:properties id="pay"
-                     location="file:C:\Users\82102\Desktop\apache-tomcat-8.5.57-windows-x64\apache-tomcat-8.5.57/payment.properties"/>
+<!--                     location="file:C:\Users\82102\Desktop\apache-tomcat-8.5.57-windows-x64\apache-tomcat-8.5.57/db.properties"/>-->
+    <util:properties id="db"
+                     location="file:/home/tomcat/apache-tomcat-8.5.64/db.properties"/>
 <!--    <util:properties id="pay"-->
-<!--                     location="file:/home/tomcat/apache-tomcat-8.5.64/payment.properties"/>-->
+<!--                     location="file:C:\Users\82102\Desktop\apache-tomcat-8.5.57-windows-x64\apache-tomcat-8.5.57/payment.properties"/>-->
+    <util:properties id="pay"
+                     location="file:/home/tomcat/apache-tomcat-8.5.64/payment.properties"/>
     <util:properties id="errors_file"
                      location="classpath:/config/file.properties"/>
     <context:component-scan base-package="controller"/>

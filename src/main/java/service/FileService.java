@@ -15,12 +15,12 @@ import java.util.Scanner;
 @Log4j2
 public class FileService {
 
-    @Value("#{errors_file['local_file']}")
-    private String errorsFile;
-
     private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
-    //    @Value("#{errors_file['linux_file']}")
+    @Value("#{errors_file['linux_file']}")
+    private String errorsFile;
+
+    //    @Value("#{errors_file['local_file']}")
 //    private String errorsFile;
     public void writeError(String s) {
         try {
