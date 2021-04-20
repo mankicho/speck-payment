@@ -4,6 +4,7 @@ import data.order.OrderInfo;
 import data.order.dto.OrderDto;
 import data.payment.PaymentMessage;
 import data.payment.dto.PaymentRequestDTO;
+import data.payment.dto.PaymentWebHookDTO;
 import data.payment.dto.RefundDTO;
 import data.payment.response.RefundResponse;
 import error.DefaultErrorCode;
@@ -23,7 +24,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 
-@RequestMapping(value = "/payment")
+@RequestMapping(value = "/user")
 @RestController
 @RequiredArgsConstructor
 @Log4j2
@@ -41,9 +42,9 @@ public class PaymentController {
         return new DefaultClientView(DefaultErrorCode.SQLIntegrityConstraintViolation); // SQL 실행도중 에러가 발생함을 알린다. JSON 형식으로
     }
 
-    @PostMapping(value = "/payments/register/billing")
-    public void registerBillingKey() {
-
+    @PostMapping(value = "/payments/complete")
+    public void paymentComplete(@RequestBody PaymentWebHookDTO paymentWebHookDTO) {
+        log.info(paymentWebHookDTO);
     }
 
     // 정기결제 URL
