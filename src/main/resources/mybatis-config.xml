@@ -7,6 +7,8 @@
         <typeAlias type="data.order.dto.OrderDto" alias="orderDto"/>
         <typeAlias type="data.PaymentInfo" alias="paymentInfo"/>
         <typeAlias type="data.payment.dto.PlanDTO" alias="PlanDTO"/>
+        <typeAlias type="data.payment.dto.PaymentWebHookDTO" alias="PaymentWebHookDTO"/>
+
     </typeAliases>
 
     <mappers>

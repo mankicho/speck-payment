@@ -1,40 +1,17 @@
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.UUID;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
-        URL url = new URL("http://studyplanet.kr/home/data/get.do");
-
-
-        while (true) {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-
-            JSONObject object = new JSONObject();
-            object.put("weekday", 4);
-            object.put("memberEmail", "dydtn3510@naver.com");
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
-
-            bw.write(object.toString());
-            bw.flush();
-
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line = br.readLine();
-            System.out.println(line);
-            Thread.sleep(10L);
-        }
 
     }
 

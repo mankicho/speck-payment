@@ -9,6 +9,4 @@ public class PaymentRequestDTO { // 결제 요청 정보
     private String midUID; // 주문번호
     private String customerUID;
     private int amount;
-
-    private PlanDTO planDTO;
 }

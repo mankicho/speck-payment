@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.SchoolMapper">
-
     <insert id="insertPlan" parameterType="PlanDTO" useGeneratedKeys="true" keyProperty="tid">
-        insert into class_members values (null,#{schoolId},#{classId},#{setDay},#{memberEmail},#{startDate},#{endDate},#{cnt},#{setPaymentAmount})
+        insert into class_members values
+        (null,#{schoolId},#{classId},#{setDay},#{memberEmail},#{startDate},#{endDate},#{cnt},#{setPaymentAmount})
     </insert>
 </mapper>
 

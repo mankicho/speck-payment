@@ -7,6 +7,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
+@Builder
 public class OrderDto { // 고객의 주문정보를 담고있는 객체
     private String orderInfo; // 주문번호
     private String memberEmail; // 고객 이메일

@@ -22,6 +22,8 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.sql.Connection;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Log4j2
@@ -43,7 +45,7 @@ public class PaymentServiceWithIAmPortServer {
 
 
     // 인증정보 요청하기
-    public JSONObject getAuthToken() {
+    private String getAuthToken() {
         JSONObject restAPIKey = new JSONObject();
         restAPIKey.put("imp_key", key);
         restAPIKey.put("imp_secret", secretKey);
@@ -62,8 +64,14 @@ public class PaymentServiceWithIAmPortServer {
 
             String line = br.readLine();
 
-
-            return new JSONObject(line);
+            if (!(line.startsWith("{") && line.endsWith("}"))) {
+                return null; // 토큰이 제대로 안받아짐.
+            }
+            JSONObject tokenObject = new JSONObject(line);
+            if (tokenObject.getJSONObject("response") == null) {
+                return null; // 토큰이 제대로 안받아짐.
+            }
+            return tokenObject.getJSONObject("response").getString("access_token");
 
         } catch (Exception e) {
             // todo 1. 적절한 에러처리 할 것
@@ -73,14 +81,18 @@ public class PaymentServiceWithIAmPortServer {
     }
 
     // 주문정보 조회
-    public JSONObject checkOrder(OrderInfo orderInfo) {
+    public JSONObject checkOrder(String impUID) {
         try {
-            URL url = new URL("https://api.iamport.kr/payments/" + orderInfo.getImpUID());
+            String token = getAuthToken();
+            if (token == null) {
+                return null;
+            }
+            URL url = new URL("https://api.iamport.kr/payments/" + impUID);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             connection.setDoOutput(true);
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", orderInfo.getAccessToken());
+            connection.setRequestProperty("Authorization", token);
 
             OutputStream os = connection.getOutputStream();
             os.flush();
@@ -130,7 +142,15 @@ public class PaymentServiceWithIAmPortServer {
     // 환불 요청
     public RefundResponse refund(RefundDTO refundDTO) {
         // todo 1. access token 발급
-        JSONObject token = getAuthToken().getJSONObject("response");
+
+        String token = getAuthToken();
+        if (token == null) {
+            return RefundResponse.builder()
+                    .status(501)
+                    .msg("서버 에러")
+                    .reason("접근 권한이 없습니다(부적절한 토큰값)")
+                    .build();
+        }
 
         log.info("refundDTO = " + refundDTO);
         // todo 2. 결제정보 조회(이미 시작한 플랜인지 검사해야함.)
@@ -161,7 +181,7 @@ public class PaymentServiceWithIAmPortServer {
             con.setDoOutput(true); // 데이터 쓰기모드
             con.setRequestMethod("POST"); // POST
             con.setRequestProperty("Content-Type", "application/json"); // 전송데이터가 JSON 임을 명시
-            con.setRequestProperty("Authorization", token.getString("access_token")); // 액세스 토큰
+            con.setRequestProperty("Authorization", token); // 액세스 토큰
             BufferedWriter bw = getBufferedWriter(con); // 버퍼 롸이터 생성
 
             bw.write(parameterData.toString());
@@ -210,9 +230,9 @@ public class PaymentServiceWithIAmPortServer {
     // 결제하기
     public PaymentMessage doPayment(PaymentRequestDTO paymentRequestDTO) {
         // todo 1. access_token 가져오기 ==> 실패 시 서버오류 메세지 리턴
-        JSONObject authToken = getAuthToken().getJSONObject("response"); // 인증토큰 요청
 
-        if (authToken == null) {
+        String token = getAuthToken();
+        if (token == null) {
             // 인증토큰을 가져오지못하면
             return PaymentMessage.builder()
                     .status(501)
@@ -220,7 +240,7 @@ public class PaymentServiceWithIAmPortServer {
                     .build();
         }
 
-        JSONObject paymentResultObject = doPaymentWithCustomerUID(paymentRequestDTO, authToken.getString("access_token")); // 결제요청
+        JSONObject paymentResultObject = doPaymentWithCustomerUID(paymentRequestDTO, token); // 결제요청
         if (paymentResultObject == null) {
             return PaymentMessage.builder()
                     .status(500)
@@ -233,28 +253,6 @@ public class PaymentServiceWithIAmPortServer {
             JSONObject responseJSON = paymentResultObject.getJSONObject("response"); //결제요청 중 response 값
 
             if (responseJSON.getString("status").equals("paid")) {
-
-                // todo 5. 유저의 플랜 예약정보를 DB 에 저장.
-                schoolMapper.insertPlan(paymentRequestDTO.getPlanDTO());
-                log.info(paymentRequestDTO.getPlanDTO());
-                // todo 6. DB 에 결제정보 저장
-                String payImpUID = responseJSON.getString("imp_uid"); // 결제 고유식별자
-                String customerUID = responseJSON.getString("customer_uid"); // 고객 빌링키 1:1 대응하는 고유 식별자
-                String merchantUID = responseJSON.getString("merchant_uid"); // 주문정보 고유 식별자
-
-                PaymentInfo paymentInfo = PaymentInfo.builder()
-                        .customerUID(customerUID)
-                        .merchantUID(merchantUID)
-                        .impUID(payImpUID)
-                        .amount(paymentRequestDTO.getAmount())
-                        .tid(paymentRequestDTO.getPlanDTO().getTid())
-                        .build();
-                int savedRow = paymentMapper.savePayment(paymentInfo);
-
-                if (savedRow == 0) {
-                    // todo. 실패기록을 로그파일로 남기자.
-                }
-
                 return PaymentMessage.builder()
                         .status(paymentResultObject.getInt("code"))
                         .paymentStatus(responseJSON.getString("status"))
@@ -289,9 +287,19 @@ public class PaymentServiceWithIAmPortServer {
         object.put("merchant_uid", paymentRequestDTO.getMidUID());
         object.put("amount", paymentRequestDTO.getAmount());
         object.put("buyer_email", paymentRequestDTO.getBuyerEmail());
+        Map<String,String> map = new HashMap<>();
+        map.put("schoolId","4");
+        map.put("classId","3");
+        map.put("setDay","127");
+        map.put("memberEmail","zkspffh@naver.com");
+        map.put("startDate","2021-04-24");
+        map.put("endDate","2021-04-25");
+        map.put("cnt","2");
+        map.put("setPaymentAmount","7000");
+
+        object.put("custom_data",map);
         return object;
     }
-
     private BufferedWriter getBufferedWriter(HttpURLConnection con) throws IOException {
         return new BufferedWriter(new OutputStreamWriter(con.getOutputStream()));
     }

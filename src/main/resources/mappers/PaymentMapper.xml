@@ -47,11 +47,15 @@
         FROM payment AS p LEFT OUTER JOIN class_members AS m
         ON p.tid = m.tid WHERE imp_uid = #{impUID} AND merchant_uid = #{midUID}
     </select>
-    
+
     <delete id="deletePayment" parameterType="string">
         DELETE FROM payment WHERE
         imp_uid = #{impUID} and merchant_uid = #{midUID}
     </delete>
+
+    <insert id="insertWebHook" parameterType="PaymentWebHookDTO">
+        INSERT INTO payment_web_hook values (null, #{imp_uid},#{merchant_uid},#{status})
+    </insert>
 </mapper>
 
 
